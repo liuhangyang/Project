@@ -1,0 +1,361 @@
+package ystruct.com;
+
+import java.io.IOException;
+
+import com.sun.org.apache.bcel.internal.generic.NEW;
+
+//写一个链表的类(头结点为空)
+//同时实现初始化Huffman树的功能
+public class UtilHuffman extends Thread{
+
+    public UserLineNode<HuffmanNode> current=null;
+    public UserLineNode<HuffmanNode> head=null;
+    public int length=0;
+    public String path;
+    public ProgressBar proBar=new ProgressBar("压缩");
+    public int fileLen;//input文件长度
+    public String fname;
+    
+    //写一个构造器来传入path
+    public UtilHuffman(String path,String fname){
+    	this.path=path;
+    	this.fname=fname;
+    }
+    
+ //   public HuffmanTreeNode<HuffmanNode> root;
+    //定义一个数组来表示各个数据
+    public int a[] =new int[256];//如a[1]表示1出现的次数
+    public HuffmanCode b[]=new HuffmanCode[256];
+    
+    
+
+    //定义一个方法，读取数据并记录各个字节数出现频次
+    public void readFile(){
+    	try {
+			// 创建文件输入流
+			java.io.FileInputStream fis = new java.io.FileInputStream(path);
+
+			// 将文件流包装成一个可以写基本数据类型的输出流
+		//	java.io.DataInputStream dis = new java.io.DataInputStream(fis);
+            while(fis.available()>0){
+            	int i=fis.read();
+            	//System.out.println("到了->"+i);
+            	a[i]++;
+            }
+            uNode();
+            //建立各个的HUFFMAN结点
+            for (int i=0;i<256;i++){
+              HuffmanNode huffmanNode=new HuffmanNode(i,a[i]);
+              shuxuIn(huffmanNode);
+            }
+            HuffmanNode root= utilTree();
+            traverSalHuffman(root,"");
+			
+			
+			
+			
+    	} catch (Exception ef) {
+			ef.printStackTrace();
+		}
+    }
+    
+    
+    //1.
+    //2.
+     
+    
+//    public void testStart(){
+//    	压缩.start();
+//    	显示界面.start();
+//    }
+    
+    public void writeFile(String fileName){
+    	try {
+    		// 创建文件输入流
+			java.io.FileInputStream fis = new java.io.FileInputStream(path);
+			// 创建文件输出流
+			java.io.FileOutputStream fos = new java.io.FileOutputStream(path+".hmrq");
+            //写放文件标识信息 
+            fos.write((int)'h');
+            fos.write((int)'f');
+            fos.write((int)'r');
+            fos.write((int)'q'); 
+            //将文件名输出
+			fos.write(fileName.length());
+            for(int i=0;i<fileName.length();i++){
+            	fos.write((int)fileName.charAt(i));
+            }
+            for (int i=0;i<256;i++){
+            	fos.write(b[i].n);
+            }
+			int count=0;
+			int i=0;
+			String writes = "";
+			String writes2="";//中转字符串
+			String writess;
+			while((i<256)||(count>=8)){
+				
+				if (count>=8){
+					writess="";//清空要转化的的码
+					for (int t=0;t<8;t++){
+			        	writess=writess+writes.charAt(t);	
+				     }
+				
+				//将writes前八位删掉
+				if (writes.length()>8){
+				  writes2="";
+				  for (int t=8;t<writes.length();t++){
+				     	writes2=writes2+writes.charAt(t);
+				     }
+				  writes="";
+				  writes=writes2;
+				  }else{
+					  writes="";
+				  }
+				  count=count-8;
+				  int intw=changeString(writess);
+		          
+				  fos.write(intw);
+				//  System.out.println("写了->b["+i+"]:"+intw+"("+writess+")");
+				}else{
+					
+					count=count+b[i].n;
+					writes=writes+b[i].node;
+					i++;
+				}
+			}
+			//把count剩下的写入
+			if (count>0){
+				writess="";//清空要转化的的码
+				for (int t=0;t<8;t++){
+					if (t<writes.length()){
+						writess=writess+writes.charAt(t);	
+					}else{
+						writess=writess+'0';
+					}
+				}
+				fos.write(changeString(writess));//写入
+				System.out.println("写入了->"+writess);
+			}
+			//显示进度
+			proBar.start();
+			//开始进行数据的写入
+			fileLen=fis.available();//写文件的长度
+			count=0;
+			writes ="";
+			writes2="";
+			int idata=fis.read();
+			int intprogs=0;
+			while ((fis.available()>0)||(count>=8)){
+			//	System.out.println(fileLen+"  "+fis.available());
+				float f=((float)fileLen-(float)fis.available())/fileLen;
+			//	System.out.println(f);
+			//	System.out.println((int)((float)((fileLen-fis.available())/fileLen)*100));
+				if ((int)((((float)fileLen-(float)fis.available())/fileLen)*100)>intprogs){
+				   intprogs=(int)((((float)fileLen-(float)fis.available())/fileLen)*100);
+				   proBar.jPM.setValue(intprogs);
+				   System.out.println(intprogs);
+				}
+				
+				if (count>=8){
+					writess="";//清空要转化的的码
+					for (int t=0;t<8;t++){
+			        	writess=writess+writes.charAt(t);	
+				     }
+				
+				   //将writes前八位删掉
+				   if (writes.length()>8){
+				     writes2="";
+				     for (int t=8;t<writes.length();t++){
+				     	writes2=writes2+writes.charAt(t);
+				       }
+				      writes="";
+				     writes=writes2;
+				    }else{
+					  writes="";
+				    }
+				  count=count-8;
+				  int intw=changeString(writess);
+		      //  System.out.println("写了->"+intw+"("+writess+")");
+				  fos.write(intw);
+				}else{
+					
+					count=count+b[idata].n;
+					writes=writes+b[idata].node;
+					idata=fis.read();
+				}
+			}
+			count=count+b[idata].n;
+			writes=writes+b[idata].node;
+			//把count剩下的写入
+			 int endsint=0;
+			 if (count>0){
+				writess="";//清空要转化的的码
+				for (int t=0;t<8;t++){
+					if (t<writes.length()){
+					writess=writess+writes.charAt(t);	
+				}else{
+					writess=writess+'0';
+					endsint++;
+					}
+				}
+				fos.write(changeString(writess));//写入
+				System.out.println("写入了->"+writess+"int:"+endsint);
+				
+			 }
+			 //写一个n，表示前一个字节中有n个位是无用的
+			fos.write(endsint);
+				 
+            proBar.jPM.setString("压缩完毕！");
+			System.out.println("压缩完毕！");  
+    	} catch (Exception ef) {
+			ef.printStackTrace();
+		}
+    }
+    
+    
+    
+    /*
+     *util the frist node
+     */
+    public void uNode(){
+        head=new UserLineNode<HuffmanNode>();
+    //	current=new UserLineNode<HuffmanNode>();
+        head.data=null;
+    //	current=head;
+    }
+    /*
+     * add the Node
+     */
+//	public void addNode(HuffmanNode huffmanNode){
+//        UserLineNode<HuffmanNode> aNode =new UserLineNode<HuffmanNode>();
+//        aNode.data=huffmanNode;
+//		current.next=aNode;
+//		current=aNode;
+//	}
+    
+    /*
+     * 按大小顺序插入
+     */
+    public void shuxuIn(HuffmanNode huffmanNode){
+        UserLineNode<HuffmanNode> aNode =new UserLineNode<HuffmanNode>();
+        aNode.data=huffmanNode;
+        UserLineNode<HuffmanNode> now=new UserLineNode<HuffmanNode>();
+        if (head.next==null){
+            head.next=aNode;
+            length++;
+        }else{
+            now=head.next;
+            UserLineNode<HuffmanNode> now2=new UserLineNode<HuffmanNode>();
+            now2=head;
+            while((aNode.data.times>now.data.times)&&(now.next!=null)){
+               now2=now;
+               now=now.next;
+            }
+            if ((now.next==null)&&(now.data.times<aNode.data.times)){
+                now.next=aNode;
+            }else{
+               now2.next=aNode;
+               aNode.next=now;
+             }
+            length++;
+        }
+    }
+    /*
+     * 定义一个遍历的方法
+     */
+    public void traverSal(){
+        UserLineNode<HuffmanNode> now=new UserLineNode<HuffmanNode>();
+        if (head.next==null) {
+            System.out.println("为空!");
+        }else{
+            now=head;
+            for (int i=0;i<length;i++){
+             now=now.next;
+             System.out.println("数据为："+now.data.data+"times="+now.data.times);
+
+            }
+
+        }
+    }
+    //将一个八位的字符串转成一个整数
+    public int changeString(String s){
+    	return ((int)s.charAt(0)-48)*128+((int)s.charAt(1)-48)*64+((int)s.charAt(2)-48)*32
+    	        +((int)s.charAt(3)-48)*16+((int)s.charAt(4)-48)*8+((int)s.charAt(5)-48)*4
+    	        +((int)s.charAt(6)-48)*2+((int)s.charAt(7)-48);
+    	
+    }
+    
+    /*
+     *  creat a methods , util a huffman Tree
+     */
+     public HuffmanNode utilTree(){
+    	HuffmanNode root =(HuffmanNode)head.next.data;
+        // if the Line has only one Node
+    	if (head.next.next==null){
+    		return root;
+    	}else
+    	 //if Line has two or more Nodes 
+        while ((head.next!=null)&&(head.next.next!=null)){
+             
+           //get the frist two Node 's Huffman data
+           HuffmanNode h1=(HuffmanNode)head.next.data;
+           HuffmanNode h2=(HuffmanNode)head.next.next.data;
+           //creat a new Huffman data ,and set the values(1 +2 ) 
+           HuffmanNode hmNode=new HuffmanNode(h1.data+h2.data,h1.times+h2.times);
+           hmNode.lChild=h1;
+           hmNode.rChild=h2;
+           //delet the frist two and set the new  in 
+           head.next=head.next.next.next;
+           shuxuIn(hmNode);
+        }
+
+    	return (HuffmanNode)head.next.data;
+        
+     }
+    //set a traver huffman's methods and give values to each b[i]
+    public void traverSalHuffman(HuffmanNode root,String s){
+       if ((root.lChild==null)&&(root.rChild==null)){
+    	    HuffmanCode hc=new HuffmanCode();
+    	    hc.node=s;
+    	    hc.n=s.length();
+        	b[root.data]=hc;
+           // System.out.println(b[root.data].node+"  "+b[root.data].n+"  "+root.data);
+        }
+    	if (root.lChild!=null){
+    	   traverSalHuffman(root.lChild,s+'0');
+    	}
+    	if (root.rChild!=null){
+     	   traverSalHuffman(root.rChild,s+'1');
+     	}
+    	
+    }
+    /*
+     * 写一个run方法
+     * @see java.lang.Thread#run()
+     */
+     public void run(){
+    	readFile();
+ 		writeFile(fname);
+     }
+
+//    public static void main(String args[]){
+//        java.util.Scanner sc=new java.util.Scanner(System.in);
+//        UtilHuffman uF=new UtilHuffman();
+//        uF.uNode();
+//        for(int i=0;i<4;i++){
+//            int j=sc.nextInt();
+//            int k=sc.nextInt();
+//            HuffmanNode huffmanNode=new HuffmanNode(j,k);
+//            uF.shuxuIn(huffmanNode);
+//            System.out.println("j="+j+"k="+k);
+//        }
+//        uF.traverSal();
+//        HuffmanNode root= uF.utilTree();
+//        uF.traverSalHuffman(root);
+//        
+
+
+//   }
+
+}
