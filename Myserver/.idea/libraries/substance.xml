@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="substance">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/下载/substance.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
