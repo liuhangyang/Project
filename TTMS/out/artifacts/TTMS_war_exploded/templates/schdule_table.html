@@ -1,0 +1,48 @@
+<div class="ibox-content">
+
+    <table class="footable table table-stripped toggle-arrow-tiny default footable-loaded"
+           data-page-size="15">
+        <thead>
+        <tr>
+            <th>序号</th>
+            <th>剧目</th>
+            <th>演出厅</th>
+            <th>放映时间</th>
+            <th>票价</th>
+            <th>--</th>
+            <th class="text-right">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for s in page.dataList %}
+        <tr><!--<td><input type="checkbox" data-jmid="{{ m.getID() }}"></td>-->
+
+            <td>{{ s.getSched().getSchedId() }}</td>
+            <td>{{ s.getPlay().getpName() }}</td>
+            <td>{{ s.getStu().getName() }}</td>
+            <td>{{ s.getSched().getScheTime() }}</td>
+            <td>{{ s.getSched().getSchePrice() }}</td>
+            <td>--</td>
+            <td class="text-right">
+                <div class="btn-group" role="group">
+
+                    <button type="button" class="btn btn-info btn-sm editbtn" data-itemId="{{ s.getSched().getSchedId() }}"><i
+                            class="fa fa-fw fa-edit"></i></button>
+
+                    <button type="button" class="btn btn-danger btn-sm delbtn" data-itemId="{{ s.getSched().getSchedId() }}"><i
+                            class="fa fa-fw fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="7" class="footable-visible">
+                {% include 'pagination.html' %}
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</div>

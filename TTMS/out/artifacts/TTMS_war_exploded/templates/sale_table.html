@@ -1,0 +1,20 @@
+<div class="tickettime">
+    {% for s in page.dataList %}
+    <ul class="clearfix">
+        <h2>{{ s.getPlay_name() }}</h2>
+        {% for pi in range(s.stulist.size()) %}
+        <li class="curr">
+            <div class="timebox fl">
+                <p class="only">{{ s.schedlist.get(pi).getShortScheTime() }}<span class="nextday"></span></p>
+                <p><span>{{ s.stulist.get(pi).getName() }}</span></p>
+                <p><span class="price">¥{{ s.schedlist.get(pi).getSchePrice()}}</span></p>
+            </div>
+            <div class="pricebox fl">
+                <p class="trueticket" data-studio='{ "studio_id": {{ s.stulist.get(pi).getID() }}, "studio_name":"{{ s.stulist.get(pi).getName() }}", "tprice":{{ s.schedlist.get(pi).getSchePrice() }}, "sched_id":{{ s.schedlist.get(pi).getSchedId() }} }'>售票</p>
+            </div>
+        </li>
+        {% endfor %}
+
+    </ul>
+    {% endfor %}
+</div>

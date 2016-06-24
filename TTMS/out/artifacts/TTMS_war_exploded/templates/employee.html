@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+{% block pageHead %}
+<link href="css/sweetalert.css" rel="stylesheet" type="text/css">
+<style type="text/css" rel="stylesheet">
+
+</style>
+{% endblock %}
+{% block pageTitle %}员工列表{% endblock %}
+{% block pageNav %}
+<li>
+    <i class="fa fa-dashboard"></i> <a href="index.html">Dashboard</a>
+</li>
+<li class="active">
+    <i class="fa fa-file"></i> 员工列表
+</li>
+{% endblock %}
+{% block pageContent %}
+<div class="row">
+    <div class="col-lg-12">
+        <button type="button" id="addbtn" class="btn btn-success">添加</button>
+    </div>
+</div>
+<div class="row">
+    <input id="pageurl" type="hidden" value="employ?&method=hxr&format=html">
+    <!--记录当前页面URL-->
+    <div class="col-lg-12" id="mainContent">
+        {% include 'employ_table.html' %}
+    </div>
+</div>
+<!-- /.row -->
+{% endblock %}
+
+{% block pageEnd %}
+
+<!--员工管理 模态框-->
+<div class="modal" id="epmloy_modal">
+    <div class="modal-dialog">
+        <div id="epmloy_modal_content" class="modal-content" data-type="edit">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                        class="sr-only">Close</span></button>
+                <h4 class="modal-title">Title</h4>
+            </div>
+            <div class="modal-body clearfix">
+              <!--main content-->
+                <form class="form-horizontal" id="employForm">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">编号：</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="empno" name="emp_no" />
+                        </div>
+                    </div>
+                <div class="form-group">
+                     <label class="col-sm-2 control-label">姓名：</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="empname" name="emp_name" />
+                    </div>
+                </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">邮箱：</label>
+                        <div class="col-sm-10">
+                            <input type="email" class="form-control" id="empemail" name="emp_email" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">手机：</label>
+                        <div class="col-sm-10">
+                            <input type="text" pattern="1\d{12}" class="form-control" id="emptel" name="emp_tel"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">住址：</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="empaddr" name="emp_addr" />
+                        </div>
+                    </div>
+                <div class="form-group">
+                     <label class="col-sm-2 control-label">密码：</label>
+                    <div class="col-sm-10">
+                        <input type="password" class="form-control" id="emppassword" name="emp_pass" />
+                        <p class="help-block">
+                            如果不修改密码请留空。
+                        </p>
+                    </div>
+                </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2">所属组：</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" id="empgroup" name="emp_group">
+                                <option>请选择用户组</option>
+
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" name="emp_id" id="empid" value="" />
+            </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="employSave">保存</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!--sweet alert-->
+<script src="js/sweetalert.min.js"></script>
+<!-- jQuery -->
+<script src="js/jquery.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var user_group = {{ ug_json }} ;
+        var ug_sel = document.getElementById("empgroup");
+        user_group.forEach(function (e) {
+            var nop = document.createElement('option');
+            nop.value = e.id;
+            nop.text = e.value;
+            ug_sel.add(nop,null);
+        });
+
+       (function ($) {
+            $.getUrlParam = function (name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+                var r = window.location.search.substr(1).match(reg);
+                if (r != null) return unescape(r[2]);
+                return null;
+            }
+        })(jQuery);
+
+        //修改
+        $("#mainContent").on("click", ".editbtn", function () {
+            var eId = $(event.target).data("itemid");
+            if (event.target.nodeName == "I") {
+                eId = $(event.target).parent().data("itemid");
+            }
+            $.ajax({
+                type: 'GET',
+                url: "employ/get?emp_id=" + eId,
+                dataType: "json",
+                success: function (data) {
+                    console.log(data);
+                    if (data.code == 0) {
+//                        {id: 3, no: "null", name: "3", tel: "null", addr: "aaaa", email: "fdgvfdbgfn", group: 16}
+                        $('#empid').val(data.data.id);
+                        $('#empno').val(data.data.no);
+                        $('#empname').val(data.data.name);
+                        $('#empemail').val(data.data.email);
+                        $('#emptel').val(data.data.tel);
+                        $('#empaddr').val(data.data.addr);
+                        $('#emppassword').val(""); //不显示原始密码
+                        $('#empgroup').val(data.data.group);
+
+                    }
+                    console.log(data.code + "   " + data.data.name);
+                },
+                error: function (xhr) {
+                    swal("获取数据失败!", "warning");
+                }
+            });
+            $('#epmloy_modal_content').data({type: "edit"});
+            $('#epmloy_modal').modal({backdrop: 'static', keyboard: false});
+        });
+        //删除
+        $("#mainContent").on("click", ".delbtn", function () {
+            //console.log(event.target.nodeName);
+            var delId = $(event.target).data("itemid");
+            if (event.target.nodeName == "I") {
+                delId = $(event.target).parent().data("itemid");
+            }
+
+            var parentTR = $(event.target).parents('tr');
+            swal({
+                        title: "确认删除?",
+                        text: "删除职工" + delId,
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "确认",
+                        cancelButtonText: "取消",
+                        closeOnConfirm: false,
+                        closeOnCancel: true,
+                        showLoaderOnConfirm: true
+                    },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            $.ajax({
+                                type: 'POST',
+                                url: "employ/delete?emp_id=" + delId,
+                                dataType: "json",
+                                success: function (data) {
+                                    console.log(data);
+                                    if (data.code == 0) {
+                                        parentTR.remove(); //移除已删除的行
+                                        swal("删除成功!", "success");
+                                    } else {
+                                        swal("删除失败!", data.msg + "\n" + data.data, "warning");
+                                    }
+
+                                },
+                                error: function (xhr) {
+                                    swal("删除失败!", "warning");
+                                }
+                            });
+                        }
+                    });
+        });
+        //翻页
+        $("#mainContent").on("click", ".pagination a", function (event) {
+            var tpage = $(event.target).data("page");
+            if (event.target.nodeName == "SPAN") {
+                tpage = $(event.target).parent().data("page");
+            }
+            var npurl = "employ?&method=hxr&format=html",
+                    pn;
+            if ((pn = $.getUrlParam("pn")))
+                npurl += "&pn=" + pn;
+            npurl += "&p=" + tpage;
+            $('#pageurl').val(npurl); //
+            $.ajax({
+                type: 'GET',
+                url: npurl,
+                success: function (data) {
+                    $("#mainContent").html(data);
+                }
+            });
+
+            return false;//阻止链接跳转
+        });
+        //提交数据
+        $('#employSave').click(function (e) {
+            if ($('#epmloy_modal_content').data('type') == "edit") {
+                $.ajax({
+                    type: 'POST',
+                    url: "employ/update",
+                    data: $.param($('#employForm').serializeArray()),
+                    //$.param($('#employFrom').serializeArray());
+                    dataType: "json",
+                    success: function (data) {
+                        console.log(data);
+                        if (data.code == 0) {
+                            $('#epmloy_modal').modal('hide');
+                            swal("修改成功!", "success");
+                            updatePage();
+                        } else {
+                            swal("修改失败!", data.msg + "\n" + data.data, "warning");
+                        }
+                    },
+                    error: function (xhr) {
+                        swal("修改失败!", "warning");
+                    }
+                });
+
+            } else if ($('#epmloy_modal_content').data('type') == "add") {
+                $.ajax({
+                    type: 'POST',
+                    url: "employ/add",
+                    data: $.param($('#employForm').serializeArray()),
+                    dataType: "json",
+                    success: function (data) {
+                        console.log(data);
+                        if (data.code == 0) {
+                            $('#epmloy_modal').modal('hide');
+                            swal("添加成功!", "success");
+                            updatePage(pager.totalPage); //跳到最后一页
+                        } else {
+                            swal("添加失败!", data.msg + "\n" + data.data, "warning");
+                        }
+
+                    },
+                    error: function (xhr) {
+                        swal("添加失败!", "warning");
+                    }
+                });
+            }
+
+        });
+        //更新页面，参数 页码， 默认当前页
+        function updatePage() {
+            var npurl = "employ?&method=hxr&format=html", p = pager.curPage, pn;
+            if (!isNaN(arguments[0])) {//如果有参数且第一参数为数字，页码就为该数字
+                p = arguments[0];
+            }
+            if ((pn = $.getUrlParam("pn"))) {
+                npurl += "&pn=" + pn;
+            }
+            npurl += "&p=" + p;
+            $('#pageurl').val(npurl);
+
+            $.ajax({
+                type: 'GET',
+                url: npurl,
+                success: function (data) {
+                    $("#mainContent").html(data);
+                }
+
+            });
+        }
+
+        // $('#mymodal').on('hide.bs.modal', function (e) { });
+        $('#addbtn').click(function () {
+            $('#empid').val("");
+            $('#empno').val("");
+            $('#empname').val("");
+            $('#empemail').val("");
+            $('#emptel').val("");
+            $('#empaddr').val("");
+            $('#emppassword').val(""); //不显示原始密码
+            $('#empgroup').val("");
+
+            $('#epmloy_modal_content').data({type: "add"});
+            $('#epmloy_modal').modal({backdrop: 'static', keyboard: false});
+        });
+
+
+    });
+
+</script>
+{% endblock %}

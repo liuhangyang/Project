@@ -1,0 +1,230 @@
+body,p,div,ul,li{margin:0;padding: 0; font-family: 'microsoft yahei';}
+a{text-decoration: none;}
+ul{list-style: none}
+
+
+input[type="text"],input[type="password"] {
+    padding: 5px;
+    height: 18px;
+    width: 240px;
+    border: solid 1px #4E4E67;
+    border-radius: 3px;
+}
+input[type="submit"]{
+
+}
+/*--------------------------------*/
+.wpr20{width: 20%;}
+.wpr40{width: 40%;}
+.wpr60{width: 60%;}
+.wpr80{width: 80%;}
+.wpr90{width: 90%;}
+.wpr95{width: 95%;}
+.wpr100{width: 100%;}
+
+.head-bar{
+	height: 70px;
+	background: #99CCCC;
+
+}
+.left-bar{
+	float: left;
+	width: 15%;
+	/*height: 600px;*/
+	height: 100%;
+	background: #eee;
+}
+.main{
+	float: left;
+	width: 85%;
+	/*height: 600px;*/
+	height: 100%;
+	overflow: auto;
+	/*background: #cfc;*/
+}
+.main::-webkit-scrollbar {
+	width: 6px;
+	border-radius: 3px;
+
+}
+
+.main::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(55,0,55,0.3);
+    border-radius: 5px;
+}
+
+.main::-webkit-scrollbar-thumb {
+    width: 5px;
+    background-color: #666;
+    outline: 1px solid blue;
+}
+
+
+.logo{
+	float: left;
+}
+.logo>p{
+	margin: 0;
+	margin-left: 20px;
+
+	font-size: 2em;
+	line-height: 70px;
+}
+
+.top-menu{
+	position: absolute;
+	right: 40px;
+	top: 0;
+}
+
+
+.top-menu>span{
+	margin-right: 20px;
+	width: 300px;
+	line-height: 70px;
+	font-size: 1em;
+}
+
+
+.content{
+	margin: 50px auto;
+}
+.footer{
+	position: absolute;
+	bottom: 0;
+	height: 40px;
+	width: 100%;
+	background: #ccc;
+}
+.footer p{
+	text-align: center;
+}
+/*----------------------*/
+
+.menu li{
+	text-align: center;
+}
+
+.menu>ul>li{
+	padding-top: 5px;
+	padding-bottom: 5px;
+	font-size: 1.5em;
+}
+.menu>ul>ul{
+	padding: 10px 0px 10px 20px;
+	font-size: 1.2em;
+}
+.menu>ul>ul>li{
+	margin: 3px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	cursor: pointer;
+}
+
+
+/*----------------------------*/
+.page-num{
+    margin-top: 30px;
+}
+.page-num span {
+    display: inline-block;
+    padding: 5px 14px;
+
+    text-align: center;
+    cursor: pointer;
+    border-radius: 3px;
+    background: #049ff1;
+}
+
+.btn{
+    margin: 0 10px;
+    padding: 5px 14px;
+    text-align: center;
+    cursor: pointer;
+    border: 0px;
+    border-radius: 3px;
+    background: #6FB934;
+}
+.del{
+    background: rgb(221, 107, 85);
+}
+
+.menu-button {
+    position: absolute;
+
+    z-index: 99;
+    margin-top: 3px;
+    padding: 0;
+    width: 2em;
+    height: 2em;
+    border: none;
+    cursor: pointer;
+    text-indent: 2em;
+    font-size: 1.5em;
+    color: transparent;
+    /*background: #EFE4E5;*/
+    background: rgba(210,210,210,.6);
+}
+
+.menu-button::before {
+    position: absolute;
+    top: 0.4em;
+    right: 0.4em;
+    bottom: 0.4em;
+    left: 0.4em;
+    background: linear-gradient(#373a47 20%, transparent 20%, transparent 40%, #D8191C 40%, #373a47 60%, transparent 60%, transparent 80%, #88E224 80%);
+    content: '';
+}
+
+.scrollpar{
+	overflow: hidden;
+}
+.scrollpane{
+	padding-right: 16px;
+	width: 100%;
+	height: 100%;
+	overflow-y: auto;
+}
+/*---------table----------------*/
+
+table.tab  {
+width:100%;
+background-color:#FFFFFF;
+border-collapse:collapse;
+border-width:1px;
+border-color:#516161;
+border-style:solid;
+text-align: center;
+color:#009900;
+}
+
+table.tab td,table.tab th {
+border-width:0;
+padding:3px;
+}
+table.tab tr.odd{
+    /*background: #ccc;*/
+}
+
+/*--------------*/
+.cover{
+    display: none;
+    position: absolute;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    background: rgba(20,10,23,.5);
+    z-index: 999;
+}
+.pbox{
+    position: relative;
+    width: 600px;
+    margin: 80px auto;
+    background: #49C1F1;
+    padding: 20px;
+    border-radius: 5px;
+}
+.pbox p{
+    /*margin: 25px;*/
+}

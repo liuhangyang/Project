@@ -1,0 +1,423 @@
+{% extends 'base.html' %}
+{% block pageHead %}
+<link href="css/sweetalert.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="css/metroStyle/metroStyle.css" type="text/css">
+<script src="js/sweetalert.min.js"></script>
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="js/jquery.ztree.excheck.js"></script>
+<script type="text/javascript" src="js/jquery.ztree.exedit.js"></script>
+<SCRIPT type="text/javascript">
+    var setting = {
+        async: {
+            enable: true,
+            url: "dict/getNodes",
+            // [{ id:'0311',    name:'n3.1.n1', isParent:true},{ id:'0312', name:'n3.1.n2', isParent:false},{ id:'0313',    name:'n3.1.n3', isParent:true},{ id:'0314', name:'n3.1.n4', isParent:false}]
+
+            autoParam: ["id", "name=n", "level=lv"],
+            //otherParam:{"otherParam":"zTreeAsyncTest"},
+            //自定义参数
+            dataFilter: filter
+        },
+        view: {
+            showLine: false,
+            selectedMulti: false
+        },
+        edit: {
+            drag: {
+                prev: true,
+                next: true,
+                inner: false
+
+            },
+            enable: true,
+            showRemoveBtn: false,
+            showRenameBtn: false
+        },
+        data: {
+            simpleData: {
+                enable: true
+            }
+        },
+        callback: {
+            beforeDrag: true,
+            beforeDrop: beforeDrop,
+            beforeDragOpen: beforeDragOpen,
+            onDrop: afterDrop,
+            beforeRemove: beforeRemove,
+            beforeRename: beforeRename,
+
+        }
+    };
+    function getNodeData(tnode) {
+        return {id: tnode.id, pid: tnode.pId, name: tnode.name};
+    }
+    function filter(treeId, parentNode, childNodes) {//过滤ajax数据
+//        if (!childNodes) return null;
+//        for (var i=0, l=childNodes.length; i<l; i++) {
+//            childNodes[i].name = childNodes[i].name.replace(/\.n/g, '.');
+//        }
+        return childNodes;
+    }
+
+    var log, className = "dark";
+    // function beforeDrag(treeId, treeNodes) {
+    //     return true;
+    // }
+    function beforeRemove(treeId, treeNode) {
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+
+        var tNode = treeNode;
+
+        if (tNode.isParent) {
+            swal("无法删除父分类!", "请先清空子分类", "warning");
+            return false;
+        }
+        tNode = treeNode.getParentNode();
+        swal({
+                    title: "确认删除?",
+                    text: "确认删除 " + treeNode.name + " 吗？",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确认",
+                    cancelButtonText: "取消",
+                    closeOnConfirm: false,
+                    closeOnCancel: true,
+                    showLoaderOnConfirm: true
+                },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        //发送 删除 请求
+                        $.ajax({
+                            type: 'POST',
+                            url: "dict/delete",
+                            dataType: "json",
+                            data: {id: treeNode.id},
+                            success: function (data) {
+                                console.log(data);
+                                swal("删除成功!", "success");
+                                zTree.reAsyncChildNodes(tNode, "refresh");
+                            },
+                            error: function (xhr) {
+                                swal("删除失败!", data.msg + "\n" + data.data, "warning");
+                            }
+                        });
+                    }
+                });
+    }
+
+    function beforeRename(treeId, treeNode, newName) {
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+        if (newName.length == 0) {
+            alert("节点名称不能为空.");
+
+            setTimeout(function () {
+                zTree.editName(treeNode)
+            }, 10);
+            return false;
+        }
+        var tNode = treeNode;
+        if (!tNode.isParent) {
+            tNode = treeNode.getParentNode()
+        }
+        console.log(treeNode);
+        console.log(newName);
+        //发送 更名/添加 请求
+        nodeData = getNodeData(treeNode);
+        nodeData.name = newName;
+        if (treeNode.isOld) {//更名
+            $.ajax({
+                type: 'POST',
+                url: "dict/edit",
+                dataType: "json",
+                data: nodeData,
+                success: function (data) {
+                    console.log(data);
+                    zTree.reAsyncChildNodes(tNode, "refresh");
+                },
+                error: function (xhr) {
+                }
+            });
+        } else {//添加
+            if (!nodeData.pid) {
+                nodeData.pid = 1;
+            }
+            $.ajax({
+                type: 'POST',
+                url: "dict/add",
+                dataType: "json",
+                data: nodeData,
+                success: function (data) {
+                    console.log(data);
+                    zTree.reAsyncChildNodes(tNode, "refresh");
+                },
+                error: function (xhr) {
+                }
+            });
+        }
+
+        return true;
+    }
+
+    function beforeDragOpen(treeId, treeNode) {
+        autoExpandNode = treeNode;
+        return true;
+    }
+    function beforeDrop(treeId, treeNodes, targetNode, moveType, isCopy) {
+        className = (className === "dark" ? "" : "dark");
+
+        showLog("target: " + (targetNode ? targetNode.name : "root") + "  -- is " + (isCopy == null ? "cancel" : isCopy ? "copy" : "move"));
+        //return true;
+
+        console.log(treeNodes[0].isParent);
+        if (treeNodes && treeNodes[0].isParent) {//父节点不能移动
+            return false;
+        }
+        if (targetNode == null) {
+            return false;
+        }
+        console.log(treeNodes);
+        console.log(targetNode);
+        if (treeNodes[0].pId != targetNode.pId) {//
+            return false;
+        }
+
+        return true;
+
+    }
+    function afterDrop(event, treeId, treeNodes, targetNode, moveType) {
+        //alert(treeNodes.length + "," + (targetNode ? (targetNode.tId + ", " + targetNode.name) : "isRoot" ));
+        if (moveType == null) return;
+        var par = treeNodes[0].getParentNode();
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+        var Nodes;
+        if (par == null) {
+            Nodes = zTree.getNodes();
+        } else {
+            Nodes = par.children;
+        }
+
+        var nlen = Nodes.length;
+        var sortstr = "";
+        for (var i = 0; i < nlen; i++) {
+            console.log(" index " + Nodes[i].getIndex() + "   " + Nodes[i].id);
+            sortstr += Nodes[i].id + "," + Nodes[i].getIndex() + "|";
+        }
+        $.ajax({//排序
+            type: 'POST',
+            url: "dict/sort",
+            dataType: "json",
+            data: {sorts: sortstr},
+            success: function (data) {
+                console.log(data);
+                //zTree.reAsyncChildNodes(tNode, "refresh");
+            },
+            error: function (xhr) {
+            }
+        });
+    }
+
+
+    //拖动规则
+    function canInner(treeId, nodes, targetNode) {
+
+        return !(nodes && nodes.isParent);
+    }
+
+
+    function showLog(str) {
+        console.log(str);
+    }
+    function getTime() {
+        var now = new Date(),
+                h = now.getHours(),
+                m = now.getMinutes(),
+                s = now.getSeconds(),
+                ms = now.getMilliseconds();
+        return (h + ":" + m + ":" + s + " " + ms);
+    }
+
+    var newCount = 1;
+    function add(e) {
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo"),
+                isParent = e.data.isParent,
+                nodes = zTree.getSelectedNodes(),
+                treeNode = nodes[0];
+        if (treeNode) {
+            treeNode = zTree.addNodes(treeNode, {
+                id: (100 + newCount),
+                pId: treeNode.id,
+                isParent: isParent,
+                name: "new node" + (newCount++)
+            });
+        } else {
+            treeNode = zTree.addNodes(null, {
+                id: (100 + newCount),
+                pId: 0,
+                isParent: isParent,
+                name: "new node" + (newCount++)
+            });
+        }
+        if (treeNode) {
+            zTree.editName(treeNode[0]);
+        } else {
+            alert("叶子节点被锁定，无法增加子节点");
+        }
+    }
+
+    function edit() {
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo"),
+                nodes = zTree.getSelectedNodes(),
+                treeNode = nodes[0];
+        if (nodes.length == 0) {
+            swal("请先选择一个分类", "warning");
+            return;
+        }
+        zTree.editName(treeNode);
+    }
+
+    function remove(e) {
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo"),
+                nodes = zTree.getSelectedNodes(),
+                treeNode = nodes[0];
+        if (nodes.length == 0) {
+            swal("请先选择一个节点", "warning");
+            return;
+        }
+        zTree.removeNode(treeNode, true);
+    }
+
+    function clearChildren(e) {
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo"),
+                nodes = zTree.getSelectedNodes(),
+                treeNode = nodes[0];
+        if (nodes.length == 0 || !nodes[0].isParent) {
+            swal("请先选择一个父节点", "warning");
+            return;
+        }
+
+        //清空 子节点 需用户确认
+        swal({
+                    title: "确认?",
+                    text: "确认清空  " + treeNode.name + " 的子节点吗？",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "确认",
+                    cancelButtonText: "取消",
+                    closeOnConfirm: false,
+                    closeOnCancel: true,
+                    showLoaderOnConfirm: true
+                },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        //发送 删除 请求
+                        $.ajax({
+                            type: 'POST',
+                            url: "dict/deletechild",
+                            dataType: "json",
+                            data: {pid: treeNode.id},
+                            success: function (data) {
+                                console.log(data);
+                                swal("操作成功!", "success");
+                                zTree.reAsyncChildNodes(treeNode.getParentNode(), "refresh");
+                            },
+                            error: function (xhr) {
+                                swal("操作失败!", "warning");
+                            }
+                        });
+                    }
+                });
+    }
+
+
+</SCRIPT>
+<style type="text/css">
+    .ztree li span.button.add {
+        margin-left: 2px;
+        margin-right: -1px;
+        background-position: -144px 0;
+        vertical-align: top;
+        *vertical-align: middle
+    }
+
+    .zTreeDemoBackground {
+        margin: 0 auto;
+        background: #c8cdd4;
+    }
+
+    .rbtn a {
+        margin: 20px;
+    }
+</style>
+{% endblock %}
+{% block pageTitle %}数据字典{% endblock %}
+{% block pageNav %}
+<li>
+    <i class="fa fa-dashboard"></i> <a href="index.html">Dashboard</a>
+</li>
+<li class="active">
+    <i class="fa fa-file"></i> 数据字典
+</li>
+{% endblock %}
+{% block pageContent %}
+
+<div class="row">
+    <div class="col-md-12" id="mainContent">
+        <div class="zTreeDemoBackground col-md-8">
+            <ul id="treeDemo" class="ztree"></ul>
+        </div>
+        <div class="col-md-4 rbtn">
+            <div class="col-md-12 .col-md-offset-3 clearfix">
+                <p>请不要删除根节点</p>
+                <p>同父节点内拖拽可以排序</p>
+            </div>
+            <div class="row clearfix">
+                <div class="col-md-6 column">
+                    <a id="addLeaf" href="#" class="btn btn-info" title="增加叶子节点" onclick="return false;">增加子节点</a>
+                </div>
+                <div class="col-md-6 column">
+                    <a id="edit" href="#" class="btn btn-info" title="编辑名称" onclick="return false;">编辑名称</a>
+                </div>
+            </div>
+            <div class="row clearfix">
+                <div class="col-md-6 column">
+                    <a id="remove" href="#" class="btn btn-info" title="删除节点" onclick="return false;">删除节点</a>
+                </div>
+                <div class="col-md-6 column">
+                    <a id="clearChildren" href="#" class="btn btn-info" title="清空子节点" onclick="return false;">清空子节点</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- /.row -->
+{% endblock %}
+{% block pageEnd %}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $.fn.zTree.init($("#treeDemo"), setting);
+        $("#addLeaf").bind("click", {isParent: false}, add);
+        $("#edit").bind("click", edit);
+        $("#remove").bind("click", remove);
+        $("#clearChildren").bind("click", clearChildren);
+
+        $('#showdata').click(function () {
+            var s = "";
+            var tobj = $.fn.zTree.getZTreeObj("treeDemo");
+            var nodes = tobj.getNodes();
+            for (var i = 0; i < nodes.length; i++) {
+                s += nodes[i].name;
+                s += ";";
+            }
+
+            console.log(s);
+        });
+    });
+
+</script>
+
+{% endblock %}

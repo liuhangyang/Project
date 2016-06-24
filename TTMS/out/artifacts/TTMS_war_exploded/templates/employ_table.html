@@ -1,0 +1,47 @@
+<div class="ibox-content">
+
+    <table class="footable table table-stripped toggle-arrow-tiny default footable-loaded"
+           data-page-size="15">
+        <thead>
+        <tr>
+            <th>编号</th>
+            <th>姓名</th>
+            <th>邮箱</th>
+            <th>所属组</th>
+            <th class="text-right">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for s in page.dataList %}
+        <tr><!--<td><input type="checkbox" data-jmid="{{ m.getID() }}"></td>-->
+
+            <td>{{ s.getNo() }}</td>
+            <td>{{ s.getName() }}</td>
+            <td>{{ s.getEmail() }}</td>
+            <td>{{ ugroup.get("ug"+s.getGroup()) }}</td>
+
+            <td class="text-right">
+                <div class="btn-group" role="group">
+
+                    <button type="button" class="btn btn-info btn-sm editbtn" data-itemId="{{ s.getId() }}"><i
+                            class="fa fa-fw fa-edit"></i></button>
+
+                    <button type="button" class="btn btn-danger btn-sm delbtn" data-itemId="{{ s.getId() }}"><i
+                            class="fa fa-fw fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="7" class="footable-visible">
+                {% include 'pagination.html' %}
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
+
+

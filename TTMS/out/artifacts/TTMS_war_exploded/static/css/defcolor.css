@@ -1,0 +1,25 @@
+.head-bar{
+    background: #99CCCC;
+}
+.left-bar{
+    background: #eee;
+}
+.footer{
+    background: #ccc;
+}
+
+.menu>ul>li{
+    background: #4FE64F;
+}
+.menu>ul>ul{
+    background: #eee;
+}
+
+.menu>ul>ul>li:hover,.menu>ul>ul>li.cur-link{
+    background: #ccc;
+}
+
+.pbox{
+    background: #9DDBEF;
+}
+

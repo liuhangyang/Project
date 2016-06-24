@@ -1,0 +1,48 @@
+<div class="ibox-content">
+
+    <table class="footable table table-stripped toggle-arrow-tiny default footable-loaded"
+           data-page-size="15">
+        <thead>
+        <tr>
+            <th>序号</th>
+            <th>名称</th>
+            <th>行数</th>
+            <th>列数</th>
+            <th>说明</th>
+            <th>管理座位</th>
+            <th class="text-right">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for s in page.dataList %}
+        <tr><!--<td><input type="checkbox" data-jmid="{{ m.getID() }}"></td>-->
+
+            <td>{{ s.getID() }}</td>
+            <td>{{ s.name }}</td>
+            <td>{{ s.rowCount }}</td>
+            <td>{{ s.colCount }}</td>
+            <td>{{ s.introduction }}</td>
+            <td><span class="iconfont icon-zuowei seat_nor" data-studio='{ "studio_id": {{ s.getID() }}, "studio_name":"{{ s.name }}" }'></span></td>
+            <td class="text-right">
+                <div class="btn-group" role="group">
+
+                    <button type="button" class="btn btn-info btn-sm editbtn" data-itemId="{{ s.getID() }}"><i
+                            class="fa fa-fw fa-edit"></i></button>
+
+                    <button type="button" class="btn btn-danger btn-sm delbtn" data-itemId="{{ s.getID() }}"><i
+                            class="fa fa-fw fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="7" class="footable-visible">
+                {% include 'pagination.html' %}
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</div>

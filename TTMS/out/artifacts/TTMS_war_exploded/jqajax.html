@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+请求结果：
+<div id="content"></div>
+<button id="btn">get</button>
+</body>
+</html>
+<script type="text/javascript" src="static/js/jquery.1.10.2.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+    $('#btn').click(function() {
+                $.ajax({
+                    type: "GET",
+                    url: "studio",
+                    data: "name=John&age=20",
+                    success: function (msg) {
+                        $('#content').text(msg);
+                        console.log(msg);
+                    }
+                });
+            });
+    });
+
+
+
+
+</script>

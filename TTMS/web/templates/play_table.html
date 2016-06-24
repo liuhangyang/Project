@@ -1,0 +1,51 @@
+<div class="ibox-content">
+
+    <table class="footable table table-stripped toggle-arrow-tiny default footable-loaded"
+           data-page-size="15">
+        <thead>
+        <tr>
+            <th>序号</th>
+            <th>名称</th>
+            <th>类型</th>
+            <th>语言</th>
+            <th>简介</th>
+            <th>剧照</th>
+            <th class="text-right">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for s in page.dataList %}
+        <tr><!--<td><input type="checkbox" data-jmid="{{ m.getID() }}"></td>-->
+
+            <td>{{ s.getpId() }}</td>
+            <td>{{ s.getpName() }}</td>
+            <td>{{ ptmap.get("pt"+s.getpTypeId()) }}</td>
+            <td>{{ plmap.get("pl"+s.getpLangId()) }}</td>
+            <td>{{ s.getpIntro() }}</td>
+            <td><img src="{{ s.getpImage()|default("") }}" height="30px"></td>
+            <!-- data-src=""-->
+            <td class="text-right">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-success btn-sm apbtn" data-itemId="{{ s.getpId() }}">安排演出</button>
+
+                    <button type="button" class="btn btn-info btn-sm editbtn" data-itemId="{{ s.getpId() }}"><i
+                            class="fa fa-fw fa-edit"></i></button>
+
+                    <button type="button" class="btn btn-danger btn-sm delbtn" data-itemId="{{ s.getpId() }}"><i
+                            class="fa fa-fw fa-trash"></i></button>
+
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="7" class="footable-visible">
+                {% include 'pagination.html' %}
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</div>

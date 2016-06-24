@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户登录</title>
+    <style type="text/css">
+        body,p{margin: 0;}
+        body{background: url("images/loginbg/bg01.jpg"); background-size:cover;}
+        .container{
+            margin: 0 auto;
+            padding: 0 auto;
+            width: 100%;
+        }
+        .login{
+            margin: 100px auto;
+            width: 400px;
+            /*height: 300px;*/
+            text-align: center;
+            background: rgba(255,255,255,.5);
+            border-radius: 5px;
+        }
+        .login h2{
+            margin: 10px auto;
+            padding-top: 10px;
+            padding-bottom: 5px;
+            width: 100%;
+            font-size: 1.2em;
+            border-bottom: solid 1px #ccc;
+        }
+        .login span{
+            font-size: 16px;
+        }
+        .login input[type="text"],.login input[type="password"]{
+            margin: 20px auto;
+            padding: 3px 5px;
+            height: 30px;
+            width: 280px;
+            font-size: 18px;
+        }
+        .reme{
+            float: left;
+            margin-top: 30px;
+            margin-left: 50px;
+        }
+        .btn{
+            float: right;
+            margin-top: 24px;
+            margin-right: 20px;
+            width: 80px;
+            height: 35px;
+            line-height: 35px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            background: #fff;
+            border: 1px solid #ccc;/*transparent*/
+            border-radius: 5px;
+        }
+        .btn:hover{
+            background: #ccc;
+        }
+        .fp{
+            margin-left: 30px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            text-align: left;
+        }
+        .emsg{ color: red;}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="login">
+        <h2>用户登录</h2>
+        <p class="emsg" id="emsg" ></p>
+
+        <p><span>用户名:</span>&nbsp;<input id="uname" type="text" autocomplete="off" placeholder="User Name"></p>
+        <p><span>密&nbsp;码:</span>&nbsp;<input id="upass" type="password" autocomplete="off"></p>
+
+        <div class="reme">
+            <input type="checkbox" name="checkbox">
+            <label >记住我</label>
+        </div>
+        <input class="btn" type="submit" value="登 录" onclick="clogin()"  onkeydown="EnterPress()" >
+
+        <div class="fp" style="clear: both">
+            如忘记密码，请联系管理员重置.
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+<script type="text/javascript">
+    function postRequest(strURL,purl){
+        var xmlHttp;
+        if(window.XMLHttpRequest){ // For Mozilla, Safari, ...
+            var xmlHttp = new XMLHttpRequest();
+        }else if(window.ActiveXObject){ // For Internet Explorer
+            var xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlHttp.open('POST', purl, true);
+        xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xmlHttp.send(strURL);
+
+        xmlHttp.onreadystatechange = function(){
+            if (xmlHttp.readyState == 4){
+                updatepage(xmlHttp.responseText);
+            }else{
+                return false;
+            }
+        }
+    }
+
+    function updatepage(str){
+        var obj;
+        var emg = document.getElementById("emsg");
+        try {
+            obj = JSON.parse(str);
+        } catch (e) {
+            emg.innerHTML = "服务器端故障！";
+            return;
+        }
+
+        if(obj.code == 0){
+            emg.innerHTML = "登录成功，跳转中.....";
+            setTimeout(function(){
+                window.location = obj.locurl;
+            },1000 );
+
+        }else{
+            emg.innerHTML = obj.err;
+        }
+    }
+
+    function clogin(){
+        var emg = document.getElementById("emsg");
+        var username = document.getElementById("uname").value;
+        var password = document.getElementById("upass").value;
+        if (username == "") {
+            emg.innerHTML = "请填写用户名！";
+            return;
+        }
+        if (password == "") {
+            emg.innerHTML = "请填写密码！";
+            return;
+        }
+        var url = "username=" + username + "&password=" +password ;
+        postRequest(url, window.location.href); //提交到本页
+    }
+
+    document.onkeydown = function (e) {
+        if (e.keyCode == 13) {
+            clogin();
+        }
+    }
+
+
+</script>

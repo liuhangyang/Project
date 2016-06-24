@@ -1,0 +1,21 @@
+.head-bar{
+    background: #6D5F82;
+}
+.footer{
+    background: #ccc;
+}
+.menu>ul>li{
+    background: #523f6d;
+}
+.left-bar,.menu>ul>ul{
+    background: #eee;
+}
+
+.menu>ul>ul>li:hover,.menu>ul>ul>li.cur-link{
+    background: #a3b745;
+}
+
+.pbox{
+    background: #F7DCA9;
+}
+

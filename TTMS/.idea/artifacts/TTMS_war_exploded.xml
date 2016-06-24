@@ -1,0 +1,26 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="TTMS:war exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/TTMS_war_exploded</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="TTMS/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="TTMS" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="lib" />
+          <element id="library" level="project" name="Maven: com.google.code.findbugs:annotations:3.0.0" />
+          <element id="library" level="project" name="Maven: com.google.guava:guava:17.0" />
+          <element id="library" level="project" name="Maven: com.hubspot.jinjava:jinjava:2.1.8" />
+          <element id="library" level="project" name="Maven: de.odysseus.juel:juel-api:2.2.7" />
+          <element id="library" level="project" name="Maven: de.odysseus.juel:juel-impl:2.2.7" />
+          <element id="library" level="project" name="Maven: de.odysseus.juel:juel-spi:2.2.7" />
+          <element id="library" level="project" name="Maven: org.apache.commons:commons-lang3:3.4" />
+          <element id="library" level="project" name="Maven: org.javassist:javassist:3.18.2-GA" />
+          <element id="library" level="project" name="Maven: org.jsoup:jsoup:1.8.1" />
+          <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.12" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block pageHead %}
+<link href="css/sweetalert.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="css/seaticon/iconfont.css">
+
+{% endblock %}
+{% block pageTitle %}退票{% endblock %}
+{% block pageNav %}
+<li>
+    <i class="fa fa-dashboard"></i> <a href="#">Dashboard</a>
+</li>
+<li class="active">
+    <i class="fa fa-file"></i> 退票
+</li>
+{% endblock %}
+{% block pageContent %}
+<div class="row">
+    <div class="input-group">
+        <input type="text" id="ret_id" class="form-control input"><span id="rbtn" class="input-group-addon btn btn-primary">退&nbsp;&nbsp;票</span>
+    </div>
+</div>
+<!-- /.row -->
+{% endblock %}
+
+{% block pageEnd %}
+<!--sweet alert-->
+<script src="js/sweetalert.min.js"></script>
+<!-- jQuery -->
+<script src="js/jquery.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="js/bootstrap.min.js"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+
+        $('#rbtn').click(function () {
+            var tid = $('#ret_id').val();
+
+            if(!tid || !tid.match(/^\d{1,5}$/) ){
+                swal("请输入有效的票号！", "warning");
+            }
+            var tds = {ticket_id: tid};
+            console.log(tid);
+            console.log(tds);
+            $.ajax({
+                type: 'POST',
+                url: "reticket/rticket",
+                data: tds,
+                dataType: "json",
+                success: function (data) {
+                    console.log(data);
+                    if (data.code == 0) {
+                        swal("退票成功!", "success");
+                    } else {
+                        swal("退票失败!", data.msg + "\n" + data.data, "warning");
+                    }
+                },
+                error: function (xhr) {
+                    swal("退票失败!", "warning");
+                }
+            });
+        });
+
+
+    });
+</script>
+
+{% endblock %}

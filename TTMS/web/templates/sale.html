@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+{% block pageHead %}
+<link href="css/sweetalert.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="css/seaticon/iconfont.css">
+
+<style type="text/css" rel="stylesheet">
+
+    p {
+        margin: 0;
+    }
+    .fl {
+        float: left;
+    }
+    .tickettime li {
+        float: left;
+        display: inline;
+        overflow: hidden;
+        text-align: center;
+        width: 213px;
+        /*height: 70px;*/
+        border: 1px solid #cecece;
+        margin: 10px 0 0 10px;
+        font-size: 13px;
+        color: #757575;
+        position: relative;
+        zoom: 1
+    }
+
+    .tickettime .timebox {
+        width: 142px;
+        height: 70px;
+        border-right: 1px solid #cecece
+    }
+
+    .tickettime .only {
+        /*font-size: 26px;*/
+        line-height: 30px;
+        color: #a5a5a5
+    }
+    .tickettime span {
+        padding: 0 3px
+    }
+    .tickettime li.curr {
+        background: #fffaf5;
+        border: 1px solid #f77603;
+        cursor: pointer
+    }
+    .tickettime li.curr .timebox .only {
+        color: #000
+    }
+    .tickettime li.curr .timebox {
+        border-right: 1px solid #f77603
+    }
+    .timebox span.price{
+        color: #f77603;
+        font-size: 18px;
+    }
+    .trueticket {
+        color: #fff;
+        font-size: 20px;
+        background: #f77603;
+        width: 74px;
+        height: 72px;
+        text-align: center;
+        line-height: 70px;
+        position: absolute;
+        top: -2px;
+        right: -2px;
+    }
+    .clearfix:after, .fix:after {
+        content: ".";
+        height: 0;
+        visibility: hidden;
+        display: block;
+        clear: both;
+    }
+    .se-top{
+        padding-bottom: 10px;
+        border-bottom: solid 1px #000;
+    }
+
+    .seat_select{
+        position: relative;
+    }
+    .seat{
+        display: inline-block;
+        width: 24px;
+        height: 21px;
+
+        background: url(images/seat_ico.png);
+
+    }
+    .seat_sd{
+        background-position: 0 0;
+    }
+    .seat_ept{
+        background: #fff;
+    }
+    .seat_avl{
+        background-position: -24px 0;
+    }
+    .seat_pr{
+        background-position: -48px 0;
+    }
+    .mtip{
+        position: absolute;
+        width: 80px;
+        text-align: center;
+        background-color: #eee;
+    }
+    .pbox{
+        width: 52%;
+        background: #F8FBFB;
+
+    }
+
+    .pbox .stick{
+        margin-left: 20px;
+        margin-top: 60px;
+    }
+    .pbox .stick p{
+        line-height: 40px;
+    }
+
+
+    .stubox {
+        padding: 20px;
+        margin-bottom: 30px;
+        /*height: 150px;*/
+        text-align: center;
+        background: #ccc;
+    }
+
+    .icon-zuowei {
+        font-size: 24px;
+        margin: 8px;
+        cursor: pointer;
+    }
+
+    td, th {
+        text-align: center;
+    }
+
+    .modal-lg {
+        margin: 40px auto;
+    }
+
+    table {
+        margin: 0 auto;
+    }
+
+    /*正常*/
+    .seat_nor {
+        color: #449d44;
+    }
+
+    /*空位*/
+    .seat_ept {
+        display: none;
+        color: #cedadc;
+    }
+
+    /*坏坐*/
+    .seat_brk {
+        display: none;
+        color: #c9302c;
+    }
+    /*已售*/
+    .seat_sed{
+        color: #cedadc;
+    }
+    /*已选*/
+    .seat_sel{
+        color: #f0ad4e;
+    }
+
+</style>
+{% endblock %}
+{% block pageTitle %}售票{% endblock %}
+{% block pageNav %}
+<li>
+    <i class="fa fa-dashboard"></i> <a href="index.html">Dashboard</a>
+</li>
+<li class="active">
+    <i class="fa fa-file"></i> 售票
+</li>
+{% endblock %}
+{% block pageContent %}
+<div class="row">
+    <input id="pageurl" type="hidden" value="studio?&method=hxr&format=html">
+    <!--记录当前页面URL-->
+    <div class="col-lg-12" id="mainContent">
+        {% include 'sale_table.html' %}
+    </div>
+</div>
+<!-- /.row -->
+{% endblock %}
+
+{% block pageEnd %}
+<!--添加 模态框-->
+{% include 'studio_modal.html' %}
+<!--座位管理 模态框-->
+<div class="modal" id="seat_modal">
+    <div class="modal-lg">
+        <div id="seat_modal_content" class="modal-content" data-type="edit">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                        class="sr-only">Close</span></button>
+                <h4 class="modal-title">Title</h4>
+            </div>
+            <div class="modal-body clearfix">
+                <div class="col-md-8" id="seat_con">
+                    <!--动态加载座位-->
+                </div>
+                <div class="col-md-4">
+                    <p>说明：</p>
+
+                    <p><span class="iconfont icon-zuowei seat_nor"></span>: 未售</p>
+                    <p><span class="iconfont icon-zuowei seat_sed"></span>: 已售</p>
+                    <p><span class="iconfont icon-zuowei seat_sel"></span>: 已选</p>
+                    <p>已选：</p>
+                    <ul id="sel_t"></ul>
+                    <p><span>总计:&nbsp;</span><span id="price_t" data-pri={"count":0,"price":0}>0</span><span>元</span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="seatSave">保存</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!--sweet alert-->
+<script src="js/sweetalert.min.js"></script>
+<!-- jQuery -->
+<script src="js/jquery.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="js/bootstrap.min.js"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        var seatClsName = [ "seat_sel" ,"seat_nor"];
+
+
+        $('#mainContent').on("click", "p.trueticket", function () {
+            $('#seat_con').data("studioInfo", $(event.target).data("studio"));
+            $('#seat_modal .modal-title').text($(event.target).data("studio").studio_name);
+            var tarStuid = $(event.target).data("studio").studio_id;
+            $.ajax({
+                type: 'GET',
+                url: "seat/get?studio_id=" + tarStuid,
+                dataType: "json",
+                success: function (data) {
+                    // console.log(data);
+                    if (data.code == 0) {//已初始化，直接显示
+                        $("#seat_con").html(data.data);
+                        $('#seat_modal').modal({backdrop: 'static', keyboard: false});
+                        //工具提示（Tooltip）插件
+                        $("[data-toggle='tooltip']").tooltip();
+                    }
+                },
+                error: function (xhr) {
+                    swal("获取数据失败!", "warning");
+                }
+            });
+
+//            $("#seat_con").load("seat?studio_id="+$(event.target).data("studio").studio_id, function () {
+//
+//            });
+
+        });
+        //
+        $('#seat_modal_content').on("click", "td > span", function () {
+//            console.log(event.target);
+            var st = $(event.target).data('seat').status;
+            //票已售出
+            if($(event.target).data('seat').initstatus == 3) return;
+            $(event.target).removeClass(seatClsName[st]).addClass(seatClsName[++st % 2]);
+            $(event.target).data('seat').status = st % 2;
+//            console.log($(event.target).data('seat'));
+            console.log("ST "+st);
+            if(st == 2){//选中
+                $('#price_t').data('pri').count++;
+                $('#sel_t').append("<li style='list-style: none'>"+ $(event.target).data('original-title')+"</li>");
+
+            }else{
+                $('#price_t').data('pri').count--;
+                //防止票数为负数
+                if($('#price_t').data('pri').count < 0){
+                    $('#price_t').data('pri').count = 0;
+                }
+                $("#sel_t li:contains("+ $(event.target).data('original-title') +")").remove();
+            }
+            $('#price_t').data('pri').price = $('#price_t').data('pri').count * $('#seat_con').data("studioInfo").tprice;
+            $('#price_t').html($('#price_t').data('pri').price);
+
+        });
+        $('#seatSave').click(function () {
+            var seatInfo = "";
+            $('#seat_con td > span').each(function (index) {//只记录修改过的
+                if ($(this).data('seat').initstatus != $(this).data('seat').status) {
+                    seatInfo += $(this).data('seat').row + "," + $(this).data('seat').col + "|";
+                }
+            });
+
+            console.log(seatInfo);
+            var seatData = {salelist: seatInfo,
+                sched_id: $('#seat_con').data("studioInfo").sched_id
+            };
+//                    $('#seat_con').data("studioInfo");
+//            seatData.salelist = seatInfo;
+            if (seatInfo == "") {
+                $('#seat_modal').modal('hide');
+                return;
+            }
+            $.ajax({
+                type: 'POST',
+                url: "sale/sticket",
+                data: seatData,
+                dataType: "json",
+                success: function (data) {
+                    console.log(data);
+                    if (data.code == 0) {
+                        $('#seat_modal').modal('hide');
+                        swal("售票成功!", "success");
+                    } else {
+                        swal("售票失败!", data.msg + "\n" + data.data, "warning");
+                    }
+                },
+                error: function (xhr) {
+                    swal("售票失败!", "warning");
+                }
+            });
+        });
+
+
+    });
+</script>
+
+{% endblock %}

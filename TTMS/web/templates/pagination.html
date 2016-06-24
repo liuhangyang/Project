@@ -1,0 +1,37 @@
+
+
+
+<script type="text/javascript">
+    var pager = { curPage: {{ page.getCurPage() }} ,totalPage: {{ page.getPageTotal() }} , total: {{ page.getTotal() }},  pageSize: {{ page.getPageSize() }}  };
+</script>
+{% for i in range(page.getPageTotal()) %}
+{% if loop.first %}
+<nav><ul class="pagination">
+    {% if loop.index == page.getCurPage()%}
+    <li class="disabled"><span aria-hidden="true">&laquo;</span></li>
+    {% else %}
+    <li><a href="javascript:;" aria-label="Previous" data-page="{{ page.getCurPage()|fmath('-',1) }}">
+        <span aria-hidden="true">&laquo;</span>
+    </a></li>
+    {% endif %}
+    {% endif %}
+    {% if loop.index == page.getCurPage() %}
+    <li class="active"><span>{{ loop.index }}</span></li>
+    {% else %}
+    <li><a href="javascript:;" data-page="{{ loop.index }}">{{ loop.index }}</a></li>
+    {% endif %}
+    {% if loop.last %}
+    {% if loop.index == page.getCurPage()%}
+    <li class="disabled">
+        <span aria-hidden="true">&raquo;</span>
+    </li>
+    {% else %}
+    <li><a href="javascript:;" aria-label="Next" data-page="{{ page.getCurPage()|fmath('+',1) }}">
+        <span aria-hidden="true">&raquo;</span>
+    </a></li>
+    {% endif %}
+
+</ul>
+</nav>
+{% endif %}
+{% endfor %}

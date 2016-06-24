@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+{% block pageHead %}
+<link href="css/sweetalert.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="css/seaticon/iconfont.css">
+
+<style type="text/css" rel="stylesheet">
+    .stubox {
+        padding: 20px;
+        margin-bottom: 30px;
+        /*height: 150px;*/
+        text-align: center;
+        background: #ccc;
+    }
+
+    .icon-zuowei {
+        font-size: 24px;
+        margin: 8px;
+        cursor: pointer;
+    }
+
+    td, th {
+        text-align: center;
+    }
+
+    .modal-lg {
+        margin: 40px auto;
+    }
+
+    table {
+        margin: 0 auto;
+    }
+
+    /*正常*/
+    .seat_nor {
+        color: #449d44;
+    }
+
+    /*空位*/
+    .seat_ept {
+        color: #cedadc;
+    }
+
+    /*坏坐*/
+    .seat_brk {
+        color: #c9302c;
+    }
+
+</style>
+{% endblock %}
+{% block pageTitle %}演出计划列表{% endblock %}
+{% block pageNav %}
+<li>
+    <i class="fa fa-dashboard"></i> <a href="index.html">Dashboard</a>
+</li>
+<li class="active">
+    <i class="fa fa-file"></i> 演出计划列表
+</li>
+{% endblock %}
+{% block pageContent %}
+
+<div class="row">
+    <input id="pageurl" type="hidden" value="schdule?&method=hxr&format=html">
+    <!--记录当前页面URL-->
+    <div class="col-lg-12" id="mainContent">
+        {% include 'schdule_table.html' %}
+    </div>
+</div>
+<!-- /.row -->
+{% endblock %}
+
+{% block pageEnd %}
+<!--添加 模态框-->
+<div class="modal" id="schdule_modal">
+    <div class="modal-dialog">
+        <div id="schdule_modal_content" class="modal-content" data-type="edit">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                        class="sr-only">Close</span></button>
+                <h4 class="modal-title">Title</h4>
+            </div>
+            <div class="modal-body clearfix">
+                <!--Mbody-->
+                <form id="schduleForm">
+                    <div class="form-group clearfix">
+                        <label  class="col-sm-2 control-label">放映时间: </label>
+                        <div class="col-sm-10">
+                            <input type="datetime-local" name="sched_time" class="form-control" id="sched_time" required = "required" >
+                        </div>
+
+                    </div>
+                    <div class="form-group clearfix">
+                        <label  class="col-sm-2 control-label">票价: </label>
+                        <div class="col-sm-10">
+                            <input type="text" name="sched_ticket_price" class="form-control" id="sched_price" required = "required" placeholder="5">
+                        </div>
+
+                    </div>
+
+                    <input name="schdule_id" id="schdule_id" type="hidden" value="">
+                </form>
+                <!--end Mbody-->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="schduleSave">保存</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!--sweet alert-->
+<script src="js/sweetalert.min.js"></script>
+<!-- jQuery -->
+<script src="js/jquery.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        (function ($) {
+            $.getUrlParam = function (name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+                var r = window.location.search.substr(1).match(reg);
+                if (r != null) return unescape(r[2]);
+                return null;
+            }
+        })(jQuery);
+
+        //修改
+        $("#mainContent").on("click", ".editbtn", function () {
+            var eStuId = $(event.target).data("itemid");
+            if (event.target.nodeName == "I") {
+                eStuId = $(event.target).parent().data("itemid");
+            }
+            $.ajax({
+                type: 'GET',
+                url: "schdule/get?schdule_id=" + eStuId,
+                dataType: "json",
+                success: function (data) {
+                    console.log(data);
+                    if (data.code == 0) {
+                        $('#schdule_id').val(data.data.schedId);
+                        $('#sched_price').val(data.data.schePrice);
+                        $('#sched_time').val(data.data.scheTime.replace(' ', 'T'));
+//                        输入框初始化
+
+                    }
+                    console.log(data.code );
+                },
+                error: function (xhr) {
+                    swal("获取数据失败!", "warning");
+                }
+            });
+            $('#schdule_modal_content').data({type: "edit"});
+            $('#schdule_modal').modal({backdrop: 'static', keyboard: false});
+        });
+        //删除
+        $("#mainContent").on("click", ".delbtn", function () {
+            //console.log(event.target.nodeName);
+            var delId = $(event.target).data("itemid");
+            if (event.target.nodeName == "I") {
+                delId = $(event.target).parent().data("itemid");
+            }
+
+            var parentTR = $(event.target).parents('tr');
+            swal({
+                        title: "确认删除?",
+                        text: "删除演出计划 " + delId,
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "确认",
+                        cancelButtonText: "取消",
+                        closeOnConfirm: false,
+                        closeOnCancel: true,
+                        showLoaderOnConfirm: true
+                    },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            $.ajax({
+                                type: 'POST',
+                                url: "schdule/delete?schdule_id=" + delId,
+                                dataType: "json",
+                                success: function (data) {
+                                    console.log(data);
+                                    if (data.code == 0) {
+                                        //parentTR.remove(); //移除已删除的行
+                                        swal("删除成功!", "success");
+                                        updatePage();
+                                    } else {
+                                        swal("删除失败!", data.msg + "\n" + data.data, "warning");
+                                    }
+
+                                },
+                                error: function (xhr) {
+                                    swal("删除失败!", "warning");
+                                }
+                            });
+                        }
+                    });
+        });
+        //翻页
+        $("#mainContent").on("click", ".pagination a", function (event) {
+            var tpage = $(event.target).data("page");
+            if (event.target.nodeName == "SPAN") {
+                tpage = $(event.target).parent().data("page");
+            }
+            var npurl = "schdule?&method=hxr&format=html",
+                    pn;
+            if ((pn = $.getUrlParam("pn")))
+                npurl += "&pn=" + pn;
+            npurl += "&p=" + tpage;
+            $('#pageurl').val(npurl); //
+            $.ajax({
+                type: 'GET',
+                url: npurl,
+                success: function (data) {
+                    $("#mainContent").html(data);
+                }
+            });
+
+            return false;//阻止链接跳转
+        });
+        //提交数据
+        $('#schduleSave').click(function (e) {
+            if ($('#schdule_modal_content').data('type') == "edit") {
+                $.ajax({
+                    type: 'POST',
+                    url: "schdule/update",
+                    data: $.param($('#schduleForm').serializeArray()),
+                    //$.param($('#schduleFrom').serializeArray());
+                    dataType: "json",
+                    success: function (data) {
+                        console.log(data);
+                        if (data.code == 0) {
+                            $('#schdule_modal').modal('hide');
+                            swal("修改成功!", "success");
+                            updatePage();
+                        } else {
+                            swal("修改失败!", data.msg + "\n" + data.data, "warning");
+                        }
+                    },
+                    error: function (xhr) {
+                        swal("修改失败!", "warning");
+                    }
+                });
+
+            }
+
+        });
+        //更新页面，参数 页码， 默认当前页
+        function updatePage() {
+            var npurl = "schdule?&method=hxr&format=html", p = pager.curPage, pn;
+            if (!isNaN(arguments[0])) {//如果有参数且第一参数为数字，页码就为该数字
+                p = arguments[0];
+            }
+            if ((pn = $.getUrlParam("pn"))) {
+                npurl += "&pn=" + pn;
+            }
+            npurl += "&p=" + p;
+            $('#pageurl').val(npurl);
+
+            $.ajax({
+                type: 'GET',
+                url: npurl,
+                success: function (data) {
+                    $("#mainContent").html(data);
+                }
+
+            });
+        }
+
+        // $('#schdule_modal').on('hide.bs.modal', function (e) { });
+
+
+
+    });
+
+</script>
+{% endblock %}

@@ -1,0 +1,22 @@
+<!-- data-status  0 空位  1 正常   2 坏坐 -->
+<p style="margin-bottom:20px;text-align:center;border-bottom: solid 2px #ccc;">银 幕</p>
+<table border="0" cellspacing="5" cellpadding="5">
+    {% for row in range(seLt.getRow()) %}
+    {% if loop.first %}
+    <tr>
+        <td>&nbsp;</td>
+        {% for col in range(seLt.getCol()) %}
+        <td>{{ col|fmath('+',1) }}</td>
+        {% endfor %}
+    </tr>
+    {% endif %}
+    <tr>
+        <td>{{ row|fmath('+',1) }}</td>
+        {% for col in range(seLt.getCol()) %}
+        <td>
+            <span class="iconfont icon-zuowei {{ seLt.getClsName(seLt.getVal(row, col)) }}" data-toggle="tooltip" data-placement="top" title="{{ row|fmath('+',1) }} 排 {{ col|fmath('+',1) }} 列" data-seat='{ "status": {{ seLt.getVal(row, col) }} , "row": {{ row|fmath('+',1) }}, "col": {{ col|fmath('+',1) }}, "initstatus": {{ seLt.getVal(row, col) }} }'></span>
+        </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
